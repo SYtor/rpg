@@ -1,61 +1,59 @@
 package ua.sytor.rpg.stage;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import ua.sytor.rpg.actor.DialogActor;
-import ua.sytor.rpg.interfaces.PlayerInteractListener;
 import ua.sytor.rpg.interfaces.TriggerListener;
 import ua.sytor.rpg.actor.Player;
 import ua.sytor.rpg.system.MapLoader;
 
 import java.util.*;
 
-public class GameStage extends Stage implements PlayerInteractListener{
+public class GameStage extends Stage implements InputProcessor{
 
     private static int VIRTUAL_HEIGHT = 297, VIRTUAL_WIDTH = 512;
 
     private OrthographicCamera camera;
     private SpriteBatch spriteBatch;
 
-    private UIStage uiStage;
+    InputMultiplexer inputMultiplexer;
+    UIStage uiStage;
+
+    TiledMap tiledMap;
+    OrthogonalTiledMapRenderer tiledMapRenderer;
 
     private Player player;
 
     //Collision stuff
-    MapObjects collisionObjects;
-
-    Set<Integer> previousTriggeredZones;
-    Set<Integer> currentlyTriggeredZones;
-    //List of actions that player can perform by click interaction button
-    HashMap<Integer,TriggerListener> actions;
+    private MapObjects collisionObjects;
+    private Set<Integer> previousTriggeredZones;
+    private Set<Integer> currentlyTriggeredZones;
+    private HashMap<Integer,TriggerListener> actions;
     //int currentActionSelected;
 
-    public GameStage(TiledMap tiledMap,UIStage uiStage){
-        camera = new OrthographicCamera(VIRTUAL_WIDTH,VIRTUAL_HEIGHT);
-        camera.setToOrtho(false,VIRTUAL_WIDTH,VIRTUAL_HEIGHT);
-        spriteBatch = new SpriteBatch();
-        spriteBatch.setProjectionMatrix(camera.combined);
-        camera.update();
-        setViewport(new ExtendViewport(VIRTUAL_WIDTH,VIRTUAL_HEIGHT,camera));
+    public GameStage(InputMultiplexer inputMultiplexer, UIStage uiStage){
+        initCameraAndViewport();
+        loadMap("map.tmx");
 
+        this.inputMultiplexer = inputMultiplexer;
         this.uiStage = uiStage;
 
         player = new Player();
         //Player spawn position
         MapLoader.loadNPC(tiledMap,this,player);
-        player.setInteractListener(this);
         addActor(player);
-
-        Gdx.input.setInputProcessor(player);
 
         previousTriggeredZones = new HashSet<Integer>();
         currentlyTriggeredZones = new HashSet<Integer>();
@@ -65,13 +63,34 @@ public class GameStage extends Stage implements PlayerInteractListener{
 
     }
 
+    private void initCameraAndViewport(){
+        camera = new OrthographicCamera(VIRTUAL_WIDTH,VIRTUAL_HEIGHT);
+        camera.setToOrtho(false,VIRTUAL_WIDTH,VIRTUAL_HEIGHT);
+        spriteBatch = new SpriteBatch();
+        spriteBatch.setProjectionMatrix(camera.combined);
+        camera.update();
+        setViewport(new ExtendViewport(VIRTUAL_WIDTH,VIRTUAL_HEIGHT,camera));
+    }
+
+    private void loadMap(String map){
+        tiledMap = new TmxMapLoader().load(map);
+        tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap,1f);
+    }
+
     @Override
     public void act(float delta) {
         super.act(delta);
         resolveCollision();
         //Camera Follow player
-        getCamera().position.set(getPlayer().getX(),getPlayer().getY(),0);
+        getCamera().position.set(player.getX(),player.getY(),0);
         getCamera().update();
+    }
+
+    @Override
+    public void draw() {
+        tiledMapRenderer.setView(camera);
+        tiledMapRenderer.render();
+        super.draw();
     }
 
     private void resolveCollision(){
@@ -146,7 +165,6 @@ public class GameStage extends Stage implements PlayerInteractListener{
                     @Override
                     public void customAction() {
                         System.out.println(mapObject.getProperties().get("text",String.class));
-                        uiStage.labelActionNumber.setText(mapObject.getProperties().get("text",String.class));
                     }
                 });
         if(mapObject.getName().equals("talk"))
@@ -168,31 +186,51 @@ public class GameStage extends Stage implements PlayerInteractListener{
 
                 @Override
                 public void customAction() {
-                    DialogActor dialogActor = new DialogActor(player,uiStage);
+                    DialogActor dialogActor = new DialogActor(inputMultiplexer ,uiStage,GameStage.this);
                     uiStage.addActor(dialogActor);
-                    player.setVelocityX(0);
-                    player.setVelocityY(0);
-                    Gdx.input.setInputProcessor(dialogActor);
+                    player.setVelocity(0,0);
                 }
             });
         actions.get(triggerZoneId).beginOverlap();
     }
 
-
-    public Player getPlayer() {
-        return player;
+    @Override
+    public boolean keyDown(int keyCode) {
+        System.out.println("GameStage");
+        switch (keyCode){
+            case Input.Keys.A:
+                player.setVelocity(-1,0);
+                break;
+            case Input.Keys.D:
+                player.setVelocity(1,0);
+                break;
+            case Input.Keys.W:
+                player.setVelocity(0,1);
+                break;
+            case Input.Keys.S:
+                player.setVelocity(0,-1);
+                break;
+            case Input.Keys.F:
+                if(actions.size()!=0){
+                    //actions.entrySet().iterator().next().getValue().customAction();
+                }
+        }
+        return super.keyDown(keyCode);
     }
 
     @Override
-    public void buttonPress(int keycode) {
-        switch (keycode){
-            case Input.Keys.F:
-                if(actions.size()!=0){
-                    actions.entrySet().iterator().next().getValue().customAction();
-                }
+    public boolean keyUp(int keyCode) {
+        switch (keyCode){
+            case Input.Keys.A:
+            case Input.Keys.D:
+                player.setVelocityX(0);
                 break;
-            case Input.Keys.TAB:
+            case Input.Keys.W:
+            case Input.Keys.S:
+                player.setVelocityY(0);
                 break;
+
         }
+        return super.keyUp(keyCode);
     }
 }

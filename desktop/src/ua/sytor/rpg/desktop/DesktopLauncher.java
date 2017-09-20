@@ -7,6 +7,7 @@ import ua.sytor.rpg.GameManager;
 public class DesktopLauncher {
 	public static void main (String[] arg) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
+		config.resizable = true;
 		new LwjglApplication(new GameManager(), config);
 	}
 }

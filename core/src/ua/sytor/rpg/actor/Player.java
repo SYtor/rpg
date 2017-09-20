@@ -1,28 +1,15 @@
 package ua.sytor.rpg.actor;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.*;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.maps.MapObject;
-import com.badlogic.gdx.maps.MapObjects;
-import com.badlogic.gdx.maps.objects.RectangleMapObject;
-import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.Array;
-import ua.sytor.rpg.interfaces.PlayerInteractListener;
 
-import java.util.*;
-
-public class Player extends Actor implements InputProcessor{
+public class Player extends Actor{
 
     private int height = 24, width = 20;
 
@@ -34,8 +21,6 @@ public class Player extends Actor implements InputProcessor{
     private float elapsedTime = 0;
 
     private Rectangle collision;
-
-    private PlayerInteractListener interactListener;
 
     public Player(){
         velocityX = 0;
@@ -65,84 +50,6 @@ public class Player extends Actor implements InputProcessor{
     }
 
     @Override
-    public boolean keyDown(int keycode) {
-        switch (keycode){
-            case Input.Keys.A:
-                velocityX = -speed;
-                break;
-            case Input.Keys.D:
-                velocityX = speed;
-                break;
-            case Input.Keys.W:
-                velocityY = speed;
-                break;
-            case Input.Keys.S:
-                velocityY = -speed;
-                break;
-            case Input.Keys.F:
-            default:
-                if(interactListener!=null)
-                    interactListener.buttonPress(keycode);
-                break;
-
-        }
-        return false;
-    }
-
-    @Override
-    public boolean keyUp(int keycode) {
-        System.out.println(velocityX + " " + velocityY);
-
-        switch (keycode){
-            case Input.Keys.A:
-            case Input.Keys.D:
-                velocityX = 0;
-                break;
-            case Input.Keys.W:
-            case Input.Keys.S:
-                velocityY = 0;
-                break;
-        }
-
-        return false;
-    }
-
-    @Override
-    public boolean keyTyped(char character) {
-        return false;
-    }
-
-    @Override
-    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        /*
-        Vector2 vector2 = new Vector2();
-        getStage().getViewport().unproject(vector2.set(screenX,screenY));
-        setPosition(vector2.x,vector2.y);
-        */
-        return false;
-    }
-
-    @Override
-    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        return false;
-    }
-
-    @Override
-    public boolean touchDragged(int screenX, int screenY, int pointer) {
-        return false;
-    }
-
-    @Override
-    public boolean mouseMoved(int screenX, int screenY) {
-        return false;
-    }
-
-    @Override
-    public boolean scrolled(int amount) {
-        return false;
-    }
-
-    @Override
     public void setPosition(float x, float y) {
         super.setPosition(x, y);
         collision = new Rectangle(getX(),getY(),width,height/2);
@@ -154,6 +61,11 @@ public class Player extends Actor implements InputProcessor{
 
     public void setVelocityY(float velocityY) {
         this.velocityY = velocityY;
+    }
+
+    public void setVelocity(float velocityX, float velocityY){
+        setVelocityX(velocityX);
+        setVelocityY(velocityY);
     }
 
     public float getVelocityX() {
@@ -170,10 +82,6 @@ public class Player extends Actor implements InputProcessor{
 
     public float getSpeed() {
         return speed;
-    }
-
-    public void setInteractListener(PlayerInteractListener interactListener) {
-        this.interactListener = interactListener;
     }
 }
 
