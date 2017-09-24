@@ -3,8 +3,10 @@ package ua.sytor.rpg.stage;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
@@ -43,9 +45,14 @@ public class GameStage extends Stage implements InputProcessor{
     private HashMap<Integer,TriggerListener> actions;
     //int currentActionSelected;
 
+
+    //Debug render
+    private boolean isDebug = false;
+    private ShapeRenderer shapeRenderer;
+
     public GameStage(InputMultiplexer inputMultiplexer, UIStage uiStage){
         initCameraAndViewport();
-        loadMap("map.tmx");
+        loadMap("maps/map.tmx");
 
         this.inputMultiplexer = inputMultiplexer;
         this.uiStage = uiStage;
@@ -61,6 +68,8 @@ public class GameStage extends Stage implements InputProcessor{
 
         collisionObjects = tiledMap.getLayers().get("collision").getObjects();
 
+        setDebugRender(true);
+        player.setDebugRender(true);
     }
 
     private void initCameraAndViewport(){
@@ -91,6 +100,8 @@ public class GameStage extends Stage implements InputProcessor{
         tiledMapRenderer.setView(camera);
         tiledMapRenderer.render();
         super.draw();
+        if(isDebug)
+            debugRender();
     }
 
     private void resolveCollision(){
@@ -211,8 +222,8 @@ public class GameStage extends Stage implements InputProcessor{
                 player.setVelocity(0,-1);
                 break;
             case Input.Keys.F:
-                if(actions.size()!=0){
-                    //actions.entrySet().iterator().next().getValue().customAction();
+                if(actions.size()!=0&&actions.entrySet().iterator().hasNext()){
+                    actions.entrySet().iterator().next().getValue().customAction();
                 }
         }
         return super.keyDown(keyCode);
@@ -232,5 +243,24 @@ public class GameStage extends Stage implements InputProcessor{
 
         }
         return super.keyUp(keyCode);
+    }
+
+    private void setDebugRender(boolean debug){
+        this.isDebug = debug;
+        if (debug)
+            shapeRenderer = new ShapeRenderer();
+        else
+            shapeRenderer = null;
+    }
+
+    private void debugRender(){
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setProjectionMatrix(getCamera().combined);
+        shapeRenderer.setColor(Color.CYAN);
+        for (MapObject mapObject : collisionObjects){
+            Rectangle rectangle = ((RectangleMapObject)mapObject).getRectangle();
+            shapeRenderer.rect(rectangle.x,rectangle.y, rectangle.width, rectangle.height);
+        }
+        shapeRenderer.end();
     }
 }

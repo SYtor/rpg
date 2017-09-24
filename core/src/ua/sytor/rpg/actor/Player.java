@@ -1,10 +1,14 @@
 package ua.sytor.rpg.actor;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Array;
@@ -21,6 +25,10 @@ public class Player extends Actor{
     private float elapsedTime = 0;
 
     private Rectangle collision;
+
+    //Debug render
+    private boolean isDebug = false;
+    private ShapeRenderer shapeRenderer;
 
     public Player(){
         velocityX = 0;
@@ -47,6 +55,12 @@ public class Player extends Actor{
         elapsedTime += Gdx.graphics.getDeltaTime();
         batch.draw((TextureRegion) animation.getKeyFrame((elapsedTime),true), getX(),getY(),getOriginX(), getOriginY(),
                 getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());
+
+        if (isDebug){
+            batch.end();
+            debugRender();
+            batch.begin();
+        }
     }
 
     @Override
@@ -82,6 +96,22 @@ public class Player extends Actor{
 
     public float getSpeed() {
         return speed;
+    }
+
+    public void setDebugRender(boolean debug){
+        this.isDebug = debug;
+        if (debug)
+            shapeRenderer = new ShapeRenderer();
+        else
+            shapeRenderer = null;
+    }
+
+    private void debugRender(){
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setProjectionMatrix(getStage().getCamera().combined);
+        shapeRenderer.setColor(Color.CYAN);
+        shapeRenderer.rect(collision.x,collision.y, collision.width, collision.height);
+        shapeRenderer.end();
     }
 }
 

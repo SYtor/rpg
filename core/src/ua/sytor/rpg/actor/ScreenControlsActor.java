@@ -1,5 +1,6 @@
 package ua.sytor.rpg.actor;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -10,7 +11,7 @@ public class ScreenControlsActor extends Actor{
 
     private ShapeRenderer shapeRenderer;
 
-    public final int size = 20;
+    public float size = 30* Gdx.graphics.getDensity();
 
     public ScreenControlsActor(){
         shapeRenderer = new ShapeRenderer();
@@ -25,13 +26,13 @@ public class ScreenControlsActor extends Actor{
         shapeRenderer.setColor(Color.RED);
         shapeRenderer.setProjectionMatrix(batch.getProjectionMatrix());
         //down
-        shapeRenderer.rect(40,0,20,20);
+        shapeRenderer.rect(2*size,0, size, size);
         //left
-        shapeRenderer.rect(20,20,20,20);
+        shapeRenderer.rect(size, size, size, size);
         //right
-        shapeRenderer.rect(60,20,20,20);
+        shapeRenderer.rect(3*size , size, size, size);
         //top
-        shapeRenderer.rect(40,40,20,20);
+        shapeRenderer.rect(2*size,2*size , size, size);
 
         float width = getStage().getWidth();
         float height = getStage().getHeight();

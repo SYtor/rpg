@@ -4,20 +4,23 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.assets.loaders.SkinLoader;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.utils.Align;
 import ua.sytor.rpg.stage.GameStage;
 import ua.sytor.rpg.stage.UIStage;
 
 import static com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.DEFAULT_CHARS;
 
-public class DialogActor extends Actor implements InputProcessor {
+public class DialogActor extends Table implements InputProcessor {
 
     private InputMultiplexer inputMultiplexer;
     private UIStage uiStage;
@@ -39,19 +42,24 @@ public class DialogActor extends Actor implements InputProcessor {
         this.uiStage = uiStage;
         this.gameStage = gameStage;
 
-        inputMultiplexer.addProcessor(this);
-        inputMultiplexer.removeProcessor(uiStage);
-        inputMultiplexer.removeProcessor(gameStage);
+        setFillParent(true);
+        Skin skin = new Skin();
+        skin.addRegions(new TextureAtlas("ui/dialog.atlas"));
+        setSkin(skin);
+        setBackground("background");
 
-        setWidth(uiStage.getWidth());
-        setHeight(uiStage.getHeight()/2);
+        Gdx.input.setInputProcessor(this);
 
+        /*
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("jackeyfont.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.characters = alphabet;
         parameter.size = 22;
         font = generator.generateFont(parameter);
         generator.dispose();
+        */
+
+        font = new BitmapFont();
 
         layout = new GlyphLayout();
 
@@ -78,7 +86,7 @@ public class DialogActor extends Actor implements InputProcessor {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(0,0,0,0);
         shapeRenderer.setProjectionMatrix(batch.getProjectionMatrix());
-        shapeRenderer.rect(0,0,uiStage.getWidth(),uiStage.getHeight()/2);
+        //shapeRenderer.rect(0,0,uiStage.getWidth(),uiStage.getHeight()/2);
         shapeRenderer.end();
 
         batch.begin();
@@ -93,15 +101,23 @@ public class DialogActor extends Actor implements InputProcessor {
             font.draw(batch, text, x, y, width, Align.left, true);
         else
             font.draw(batch, text.substring(0,charToDraw), x, y, width, Align.left, true);
+
+        System.out.println("Ppi" + Gdx.graphics.getDensity() + " " + Gdx.graphics.getPpiY());
+    }
+
+    public void showText(String text){
+
+    }
+
+    public void loadDialog(int id){
+
     }
 
 
 
     @Override
     public boolean remove() {
-        inputMultiplexer.removeProcessor(this);
-        inputMultiplexer.addProcessor(uiStage);
-        inputMultiplexer.addProcessor(gameStage);
+        Gdx.input.setInputProcessor(inputMultiplexer);
         return super.remove();
     }
 
@@ -131,6 +147,7 @@ public class DialogActor extends Actor implements InputProcessor {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        keyDown(Input.Keys.F);
         return false;
     }
 

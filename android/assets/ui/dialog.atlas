@@ -1,0 +1,15 @@
+
+dialog.png
+size: 32,32
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+background
+  rotate: false
+  xy: 2, 2
+  size: 20, 20
+  split: 2, 2, 2, 2
+  pad: 3, 2, 3, 3
+  orig: 20, 20
+  offset: 0, 0
+  index: -1

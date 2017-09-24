@@ -16,22 +16,19 @@ import ua.sytor.rpg.actor.ScreenControlsActor;
 
 public class UIStage extends Stage implements InputProcessor{
 
-    public static int SCREEN_WIDTH = 512;
-    public static int SCREEN_HEIGHT = 297;
-
     private OrthographicCamera uiCamera;
     private SpriteBatch uiSpriteBatch;
 
-    InputMultiplexer inputManager;
+    private InputMultiplexer inputManager;
 
-    Skin skin;
+    private Skin skin;
 
-    Table table;
+    private Table table;
+
+    public float size = 30* Gdx.graphics.getDensity();
 
     public UIStage(InputMultiplexer inputManager){
         this.inputManager = inputManager;
-
-        setDebugAll(true);
 
         initCameraAndViewport();
 
@@ -54,8 +51,7 @@ public class UIStage extends Stage implements InputProcessor{
     }
 
     private void initCameraAndViewport(){
-        uiCamera = new OrthographicCamera(SCREEN_WIDTH,SCREEN_HEIGHT);
-        uiCamera.setToOrtho(false,SCREEN_WIDTH,SCREEN_HEIGHT);
+        uiCamera = new OrthographicCamera();
         uiSpriteBatch = new SpriteBatch();
         uiSpriteBatch.setProjectionMatrix(uiCamera.combined);
         uiCamera.update();
@@ -82,21 +78,21 @@ public class UIStage extends Stage implements InputProcessor{
         Vector2 vector2 = new Vector2();
         getViewport().unproject(vector2.set(screenX,screenY));
         //down
-        if(vector2.x > 40 && vector2.x < 60 & vector2.y > 0 & vector2.y < 20 )
+        if(vector2.x > 2*size && vector2.x < 3*size & vector2.y > 0 & vector2.y < size )
             inputManager.keyDown(Input.Keys.S);
         //top
-        if(vector2.x > 40 && vector2.x < 60 & vector2.y > 40 & vector2.y < 60 )
+        if(vector2.x > 2*size && vector2.x < 3*size & vector2.y > 2*size & vector2.y < 3*size )
             inputManager.keyDown(Input.Keys.W);
         //left
-        if(vector2.x > 20 && vector2.x < 40 & vector2.y > 20 & vector2.y < 40 )
+        if(vector2.x > size && vector2.x < 2*size & vector2.y > size & vector2.y < 2*size )
             inputManager.keyDown(Input.Keys.A);
         //right
-        if(vector2.x > 60 && vector2.x < 80 & vector2.y > 20 & vector2.y < 40 )
+        if(vector2.x > 3*size && vector2.x < 4*size & vector2.y > size & vector2.y < 2*size )
             inputManager.keyDown(Input.Keys.D);
         //F use button
         float width = getWidth();
         float height = getHeight();
-        if(vector2.x > width-40 && vector2.x < width-20 & vector2.y > 20 & vector2.y < 40 )
+        if(vector2.x > width-2*size && vector2.x < width-size & vector2.y > size & vector2.y < 2*size )
             inputManager.keyDown(Input.Keys.F);
         return false;
     }
@@ -106,26 +102,33 @@ public class UIStage extends Stage implements InputProcessor{
         System.out.println("touchUp " + pointer);
         inputManager.keyUp(Input.Keys.A);
         inputManager.keyUp(Input.Keys.W);
+
         return false;
     }
 
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
-        System.out.println("touchDragged " + pointer);
         Vector2 vector2 = new Vector2();
         getViewport().unproject(vector2.set(screenX,screenY));
+
+        float width = getWidth();
+        float height = getHeight();
+
         //down
-        if(vector2.x > 40 && vector2.x < 60 & vector2.y > 0 & vector2.y < 20 )
+        if(vector2.x > 2*size && vector2.x < 3*size & vector2.y > 0 & vector2.y < size )
             inputManager.keyDown(Input.Keys.S);
         //top
-        else if(vector2.x > 40 && vector2.x < 60 & vector2.y > 40 & vector2.y < 60 )
-                inputManager.keyDown(Input.Keys.W);
+        else if(vector2.x > 2*size && vector2.x < 3*size & vector2.y > 2*size & vector2.y < 3*size )
+            inputManager.keyDown(Input.Keys.W);
         //left
-        else if(vector2.x > 20 && vector2.x < 40 & vector2.y > 20 & vector2.y < 40 )
+        else if(vector2.x > size && vector2.x < 2*size & vector2.y > size & vector2.y < 2*size )
             inputManager.keyDown(Input.Keys.A);
         //right
-        else if(vector2.x > 60 && vector2.x < 80 & vector2.y > 20 & vector2.y < 40 )
+        else if(vector2.x > 3*size && vector2.x < 4*size & vector2.y > size & vector2.y < 2*size )
             inputManager.keyDown(Input.Keys.D);
+        //F
+        else if(vector2.x > width-2*size && vector2.x < width-size & vector2.y > size & vector2.y < 2*size )
+            inputManager.keyDown(Input.Keys.F);
         else {
             inputManager.keyUp(Input.Keys.A);
             inputManager.keyUp(Input.Keys.W);

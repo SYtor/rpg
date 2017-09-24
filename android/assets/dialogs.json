@@ -1,0 +1,31 @@
+[
+  {
+    "id":1,
+    "type":"text",
+    "text":"Pleased to meet you, [userName]",
+    "speakerName":"Amanto",
+    "next":2
+  },
+  {
+    "id":2,
+    "type":"select",
+    "text":"What to do?",
+    "answers":["Select 1" , "Select 2"],
+    "speakerName":"[userName]",
+    "next":[3, 4]
+  },
+  {
+    "id":3,
+    "type":"text",
+    "text":"",
+    "speakerName":"1 Selected",
+    "next":2
+  },
+  {
+    "id":4,
+    "type":"text",
+    "text":"2 Selected",
+    "speakerName":"Amanto",
+    "next":2
+  }
+]
